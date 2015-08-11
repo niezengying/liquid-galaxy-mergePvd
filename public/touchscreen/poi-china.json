@@ -1,0 +1,44 @@
+[
+  {
+    "objects": [
+      {
+        "description": "Shanghai World Financial Center",
+        "identifier": "10023560121114190119100",
+        "lookup": "panoid",
+        "slug": "Shanghai WFC",
+        "title": "Shanghai WFC",
+        "heading": 255,
+				"provider":"tencent"
+      },
+      {
+        "description": "",
+        "identifier": "22071013130906160156500",
+        "lookup": "panoid",
+        "slug": "Shandong",
+        "title": "Shandong",
+        "heading": 310,
+				"provider":"tencent"
+      },
+      {
+        "description": "",
+        "identifier": "10011501120802181824800",
+        "lookup": "panoid",
+        "slug": "Beijing",
+        "title": "Beijing",
+        "heading": 0,
+				"provider":"tencent"
+      },
+      {
+        "description": "",
+        "identifier": "27031027130718135035900",
+        "lookup": "panoid",
+        "slug": "li",
+        "title": "Li River",
+        "heading": 0,
+				"provider":"tencent"
+      }
+    ],
+    "description": "China Scenes",
+    "title": "China"
+  }
+]
