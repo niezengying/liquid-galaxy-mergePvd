@@ -54,12 +54,14 @@ function(config, L, validate, Stapes, XMaps) {
 
     constructor: function($Gcanvas,$Qcanvas,$Bcanvas,master) {
       this.$canvas = null;
-			this.$Gcanvas = $Gcanvas;
-			this.$Qcanvas = $Qcanvas,
-			this.$Bcanvas = $Bcanvas,
+      this.$Gcanvas = $Gcanvas;
+      this.$Qcanvas = $Qcanvas,
+      this.$Bcanvas = $Bcanvas,
+      
       this.master = master;
       this.map = null;
       this.streetview = null;
+      
       this.meta = null;
       this.pov = null;
       this.mode = config.display.mode;
@@ -67,11 +69,10 @@ function(config, L, validate, Stapes, XMaps) {
       this.fov_table = this.SV_HFOV_TABLES[this.mode];
       this.hfov = this.fov_table[this.zoom];
       this.vfov = null;
-			
-			this.provider = config.provider-1;
-			this.streetview = null;
-			this.mapArray = new Array(3);
-			this.svArray = new Array(3);
+      
+      this.provider = null;
+      this.pano = null;
+      
     },
 
     // PUBLIC
@@ -82,177 +83,201 @@ function(config, L, validate, Stapes, XMaps) {
       console.debug('StreetView: init');
 
       var self = this;
+      
+      this.mapArray = new Array(3);
+      this.svArray = new Array(3);
+      this.sv_svcArray = new Array(3);
 
       // *** ensure success of Maps API load
       if (typeof XMaps === 'undefined') L.error('Maps API not loaded!');
 
       // *** initial field-of-view
       this._resize();
-			
-			// *** options for the streetview object
-			var mapOptions = {
-				disableDefaultUI: true,
-				backgroundColor: "black",
-				zoom: 8
-			};
-			
-			var svOptions = {
-					visible: true,
-					disableDefaultUI: true,
-					scrollwheel: false
-			};
-			
-			// *** only show links on the master display
-			if (this.master && config.display.show_links) {
-				svOptions.linksControl = true;
-			}
-		
-			// *** create three streetview query object
+
+      
+      // *** create three streetview query object
+      this.cvArray = [this.$Gcanvas,this.$Qcanvas,this.$Bcanvas];      
 			for(i=0;i<3;i++){
-				if(i == 0) 	this.$canvas = this.$Gcanvas;
-				else if(i==1) this.$canvas = this.$Qcanvas;
-				else if(i==2) this.$canvas = this.$Bcanvas;
 				
-				// *** create a local streetview query object
-				this.sv_svc = new XMaps[i].StreetViewService();
+        // *** create a local streetview query object
+        this.sv_svc = new XMaps[i].StreetViewService();
+        this._change_sv_div(i);
 				
-				// *** options for the map object
-				// the map will never be seen, but we can still manipulate the experience
-				// with these options.
-				this.default_center = new XMaps[i].LatLng(
-					config.touchscreen.default_center[XMaps[i].apiProvider - 1].lat,
-					config.touchscreen.default_center[XMaps[i].apiProvider - 1].lng
-				);
-				console.log(this.default_center);
+        // *** options for the map object
+        // the map will never be seen, but we can still manipulate the experience
+        // with these options.
+        this.default_center = new XMaps[i].LatLng(
+          config.touchscreen.default_center[i].lat,
+          config.touchscreen.default_center[i].lng
+        );
+              
+        // *** options for the streetview object
+        var mapOptions = {
+          center: this.default_center,
+          disableDefaultUI: true,
+          backgroundColor: "black",
+          zoom: 8
+        };
+        
+        var svOptions = {
+            visible: true,
+            disableDefaultUI: true,
+            scrollwheel: false,
+            navigationControl: false,
+            linksControl: false
+        };
+        
+        // *** only show links on the master display
+        if (this.master && config.display.show_links) {
+          svOptions.linksControl = true;
+        }
+             
+        // *** init map object
+        this.map= new XMaps[i].Map(
+          this.$canvas,
+          mapOptions
+        );
+        this.map.centerAndZoom(this.default_center,8);
 
-				// *** init map object
-				this.map = new XMaps[i].Map(
-					this.$canvas,
-					mapOptions
-				);
-				
-				this.map.centerAndZoom(this.default_center,8);
+        // *** init streetview object
+        this.streetview = new XMaps[i].StreetViewPanorama(
+          this.$canvas,
+          svOptions
+        );
 
-				// *** init streetview object
-				this.streetview = new XMaps[i].StreetViewPanorama(
-					this.$canvas,
-					svOptions
-				);
+        // *** init streetview pov
+        this.streetview.setPov({
+          heading: 0,
+          pitch: 0
+        });
+        
+        this.streetview.setZoom(this.zoom);
+        this.streetview.setPano(config.display.default_pano[i]);
+    
+        // *** set the display mode as specified in global configuration
+        this.streetview.setOptions({ mode: this.mode });
+        if (config.display.show_labels) {
+          this.streetview.setOptions({'indoorSceneSwitchControl': true});
+        }
 
-				// *** init streetview pov
-				this.streetview.setPov({
-					heading: 0,
-					pitch: 0
-				});
-				
-				this.streetview.setZoom(this.zoom);
-				this.streetview.setPano(config.display.default_pano[XMaps[i].apiProvider-1]);
-		
-				// *** set the display mode as specified in global configuration
-				this.streetview.setOptions({ mode: this.mode });
-				if (config.display.show_labels) {
-					this.streetview.setOptions({'indoorSceneSwitchControl': true});
-					//this.streetview.setPanoramaPOIType();
-				}
+        // *** apply the custom streetview object to the map
+        this.map.setStreetView( this.streetview );
+        
+        this.mapArray[i] = this.map;
+        this.svArray[i] = this.streetview;
+        this.sv_svcArray[i] = this.sv_svc;
+      }
+      
+      this.provider = config.provider-1;
+      this.streetview = this.svArray[this.provider];
+      this.map = this.mapArray[this.provider];
+      this.sv_svc = this.sv_svcArray[this.provider];
+      this._change_map_shown(this.provider);        
+             
+      // *** events for master only
+      if (this.master) {
+          
+       for(idx = 0; idx<3; idx++){
+         self = this;
+          // *** handle view change events from the streetview object
+         XMaps[idx].addListener(this.svArray[idx], 'pov_changed', function() {            
+            var pov = self.streetview.getPov();      
+            self._broadcastPov(pov);
+            self.pov = pov;
+          });
 
-				// *** apply the custom streetview object to the map
-				this.map.setStreetView( this.streetview );
-				
+          // *** handle pano change events from the streetview object
+         XMaps[idx].addListener(this.svArray[idx], 'pano_changed', function() {   
+            var panoid = self.streetview.getPano();          
+            if (panoid != self.pano) {
+              self._broadcastPano(panoid);
+              self.pano = panoid;
+              self.resetPov();
+            }
+          });
+        }
+      }
+            
+      
+      for(idx = 0; idx<3; idx++){   
+        // *** disable <a> tags at the bottom of the canvas
+        XMaps[idx].addListenerOnce(this.mapArray[idx], 'idle', function() {
+          self._change_sv_div(idx);
+          var links = self.$canvas.getElementsByTagName("a");
+          var len = links.length;
+          for (var i = 0; i < len; i++) {
+            links[i].style.display = 'none';
+            links[i].onclick = function() {return(false);};
+          }
+        });
 
-				// *** events for master only
-				if (this.master) {
-					// *** handle view change events from the streetview object
-				 XMaps[i].addListener(this.streetview, 'pov_changed', function() {
-						var pov = self.streetview.getPov();
+         // *** wait for an idle event before reporting module readiness
+        XMaps[idx].addListenerOnce(this.mapArray[idx], 'idle', function() {
+            console.debug('StreetView: ready map',idx);
+            self.emit('_ready');
+        });    
 
-						self._broadcastPov(pov);
-						self.pov = pov;
-					});
+      }
+/*   XMaps[0].addListenerOnce(this.mapArray[0], 'idle', function() {
+					console.debug('StreetView: ready map',0);
+					self.emit('_ready');
+		 });
+		 
+			XMaps[1].addListenerOnce(this.svArray[1], 'loaded', function() {
+					console.debug('StreetView: ready map',1);
+					self.emit('_ready');
+		 });  
+		 
+			XMaps[1].addListenerOnce(this.mapArray[1], 'idle', function() {
+					console.debug('StreetView: ready map',1);
+					self.emit('_ready');
+		 }); 
+		 
+		 XMaps[2].addListenerOnce(this.mapArray[2], 'idle', function() {
+					console.debug('StreetView: ready map',2);
+					self.emit('_ready');
+		 });
+*/
+      var time = 0
+      this.on('_ready', function() {
+        time++;
+        if(time == 3) this.emit('ready');
+      }); 
 
-					// *** handle pano change events from the streetview object
-				 XMaps[i].addListener(this.streetview, 'pano_changed', function() {
-						var panoid = self.svArray[i].getPano();
+      // *** request the last known state from the server
+      this.on('ready', function() {
+        self.emit('refresh');
+      });
 
-						if (panoid != self.pano) {
-							self._broadcastPano(panoid);
-							self.pano = panoid;
-							self.resetPov();
-						}
-					});
-				}
 
-				// *** disable <a> tags at the bottom of the canvas
-			 XMaps[i].addListenerOnce(this.map, 'idle', function() {
-					var links = self.$canvas.getElementsByTagName("a");
-					var len = links.length;
-					for (var i = 0; i < len; i++) {
-						links[i].style.display = 'none';
-						links[i].onclick = function() {return(false);};
-				 }
-				});
-
-				// *** request the last known state from the server
-				this.on('ready', function() {
-					self.emit('refresh');
-				});
-
-				// *** wait for an idle event before reporting module readiness
-				XMaps[i].addListenerOnce(this.map, 'idle', function() {
-					console.debug('StreetView: ready');
-					self.emit('ready');
-				});
-				
-				this.svArray[i] = this.streetview;
-				this.mapArray[i] = this.map;
-			}
-			this.provider = config.provider-1;
-			this.streetview = this.svArray[this.provider];
-			this.map = this.mapArray[this.provider];
-				
       // *** handle window resizing
       window.addEventListener('resize',  function() {
         self._resize();
       });
+            
     },
-
-    // *** setPanopvd(provider)
-    // switch to the provided provider, immediately
-    setPanopvd: function(panopvd) {
-      if (!validate.pvd(panopvd)) {
+    
+    initParams: function(panopvd){
+      this.provider = panopvd.pvd;
+      this.pano = panopvd.pano;
+      this.svArray[this.provider].setPano(panopvd.pano);
+      this.streetview = this.svArray[panopvd.pvd];
+      this.emit('init OK');
+    },
+    
+    setPvd: function(pvdid) {
+      if (!validate.pvd(pvdid)) {
         L.error('StreetView: bad pvd to setPvd!');
         return;
       }
-			var pvd = panopvd.pvd;
-			var pano = panopvd.pano;
-			
-			var tmppvd = 0;
-			if(pvd == 'google') {
-				tmppvd = 0;
-			//	this.$Gcanvas.style.display = "block";
-		//		this.$Qcanvas.style.display = "none";
-			//	this.$Bcanvas.style.display = "none";
-			}
-			else if(pvd == 'tencent'){
-				tmppvd = 1;
-			//	this.$Gcanvas.style.display = "none";
-		//		this.$Qcanvas.style.display = "block";
-			//	this.$Bcanvas.style.display = "none";
-			}
-			else if(pvd == 'baidu'){
-				tmppvd = 2;
-			//	this.$Gcanvas.style.display = "none";
-			//	this.$Qcanvas.style.display = "none";
-			//	this.$Bcanvas.style.display = "block";
-			}
-			
-      if (tmppvd != this.provider) {
-        this.provider = tmppvd;
-        this.streetview = this.svArray[tmppvd];
-				this.setPano(panopvd.pano);
-      } else {
-				this.setPano(panopvd.pano);
-      }
-    },		
+      if (pvdid != this.provider) {
+        this.provider = pvdid;
+        this.streetview = this.svArray[pvdid];
+        this.map = this.mapArray[pvdid];
+        this.sv_svc = this.sv_svcArray[pvdid];
+        this._change_map_shown(pvdid);
+      } 
+    },
 
     // *** setPano(panoid)
     // switch to the provided pano, immediately
@@ -261,15 +286,37 @@ function(config, L, validate, Stapes, XMaps) {
         L.error('StreetView: bad panoid to setPano!');
         return;
       }
-	  
+      
       if (panoid != this.streetview.getPano()) {
+ 
         this.pano = panoid;
         this.streetview.setPano(panoid);
+        this.svArray[this.provider] = this.streetview;        
         this.resetPov();
       } else {
         console.warn('StreetView: ignoring redundant setPano');
       }
     },
+    
+    // *** setPanopvd(provider)
+    // switch to the provided provider, immediately
+    setPanopvd: function(panopvd) {
+      var panoid = panopvd.pano;
+      var pvdid = panopvd.pvd;
+      
+      if (pvdid != this.provider) {
+        this.provider = pvdid;
+        this.pano = panoid;
+        this.map = this.mapArray[pvdid];
+        this.streetview = this.svArray[pvdid];
+      }
+     
+      this.pano = panoid;
+      this.svArray[pvdid].setPano(panoid);
+      this.streetview = this.svArray[pvdid];
+      this.resetPov();
+      this._change_map_shown(pvdid);
+    },    
 
     // *** setPov(XMaps.StreetViewPov)
     // set the view to the provided pov, immediately
@@ -278,8 +325,10 @@ function(config, L, validate, Stapes, XMaps) {
         L.error('StreetView: bad pov to setPov!');
         return;
       }
-
-      this.streetview.setPov(pov);
+      this.svArray[this.provider].setPov(pov);
+      this.streetview = this.svArray[this.provider];
+//      this.streetview.setPov(pov);
+//      this.svArray[this.provider] = this.streetview;
     },
 
     // *** restPov(Xmaps.StreetViewPov)
@@ -319,6 +368,7 @@ function(config, L, validate, Stapes, XMaps) {
       pov.pitch   += abs.pitch;
 
       this.streetview.setPov(pov);
+      this.svArray[this.provider]=this.streetview;
     },
 
     // *** moveForward()
@@ -327,7 +377,7 @@ function(config, L, validate, Stapes, XMaps) {
       console.log('moving forward');
       var forward = this._getForwardLink();
       if(forward) {
-				var fwdpano = (forward.pano==null?forward.id:forward.pano);
+        var fwdpano = (forward.pano==null?forward.id:forward.pano);
         this.setPano(fwdpano);
         this._broadcastPano(fwdpano);
       } else {
@@ -345,6 +395,11 @@ function(config, L, validate, Stapes, XMaps) {
       this.emit('size_changed', {hfov: this.hfov, vfov: this.vfov});
       console.debug('StreetView: resize', this.hfov, this.vfov);
     },
+    
+    
+    _initParam: function(){
+      this.emit('sv_init');
+    },
 
     // *** _broadcastPov(XMaps.StreetViewPov)
     // report a pov change to listeners
@@ -356,13 +411,12 @@ function(config, L, validate, Stapes, XMaps) {
     // report a pano change to listeners
     _broadcastPano: function(panoid) {
       this.emit('pano_changed', panoid);
-
       var self = this;
-      sv_svc[this.provder].getPanoramaById(
+      this.sv_svcArray[this.provider].getPanoramaById(
         panoid,
         function (data, stat) {
-          if (stat == XMaps[self.provider].StreetViewStatus.OK && sv_svc[self.provder]) {
-            sv_svc[this.provder].serializePanoData(data);
+          if (stat == XMaps[self.provider].StreetViewStatus.OK) {
+          //sv_svc[self.provider].serializePanoData(data);
             self.emit('meta', data);
           }
         }
@@ -403,6 +457,32 @@ function(config, L, validate, Stapes, XMaps) {
       }
 
       return nearest;
+    },
+    
+    _change_map_shown:function(pvdid){
+      var cvArray = [this.$Gcanvas,this.$Qcanvas,this.$Bcanvas];
+      for(i = 0; i<3; i++){
+        $curdiv = cvArray[i];
+        if(i == pvdid) $curdiv.style.display = 'block';
+        else $curdiv.style.display = 'none';
+      }
+    },
+  
+    
+    _change_map_shown2: function(pvdid){
+      var cvArray = [this.$Gcanvas,this.$Qcanvas,this.$Bcanvas];
+      cvArray.forEach(function(canvas,idx){
+        if(idx == pvdid)
+          canvas.style.display = 'block';
+        else
+          canvas.style.display = 'none';
+      });
+    },
+    
+    _change_sv_div: function(pvdid){
+      if(0==pvdid)   this.$canvas = this.$Gcanvas;
+      else if(1==pvdid) this.$canvas = this.$Qcanvas;
+      else if(2==pvdid) this.$canvas = this.$Bcanvas;  
     }
   });
 

@@ -60,8 +60,8 @@ function(config, L, Stapes, $, leftUI, doT, XMaps) {
       var name = $activity.html();
       var app  = $activity.attr('app');
 
-	  XMaps.SetProvider(app);
-      L.info('switching to', name);	
+    XMaps.SetProvider(app);
+      L.info('switching to', name);  
       var url = this.iface+'/change.php?query=relaunch-'+app+'&name='+name;
       var req = new XMLHttpRequest();
       req.open('GET', url, true);

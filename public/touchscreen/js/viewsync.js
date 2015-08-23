@@ -35,7 +35,11 @@ function(config, L, Stapes, io) {
         console.debug('ViewSync: ready');
         self.emit('ready');
       });
-			
+      
+      this.socket.on('sync pvd', function(pvdid) {
+        self.emit('pvd', pvdid);
+      });
+      
       this.socket.on('sync pano', function(panoid) {
         self.emit('pano', panoid);
       });
@@ -43,7 +47,7 @@ function(config, L, Stapes, io) {
       this.socket.on('sync pov', function(pov) {
         self.pov = pov;
       });
-
+      
       this.socket.on('connect_failed', function() {
         L.error('ViewSync: connection failed!');
       });
@@ -55,14 +59,19 @@ function(config, L, Stapes, io) {
       });
     },
 
-		sendPvd: function(panopvd){
-			this.socket.emit('panopvd',panopvd);
-			L.info('ViewSync: sendPvd', panopvd.pvd,panopvd.pano);
-		},
-		
     sendPano: function(panoid) {
       this.socket.emit('pano', panoid);
       L.info('ViewSync: sendPano', panoid);
+    },
+    
+    sendPvd: function(pvdid) {
+      this.socket.emit('pvd', pvdid);
+      L.info('ViewSync: sendPvd', pvdid);
+    },
+
+     sendPanopvd: function(panopvd){
+      this.socket.emit('panopvd',panopvd);
+      L.info('ViewSync: sendPvd', panopvd.pvd,panopvd.pano);
     },
 
     sendMeta: function(data) {
@@ -75,7 +84,7 @@ function(config, L, Stapes, io) {
         pitch: this.pov.pitch,
       });
     },
-		
+    
     refresh: function() {
       console.debug('ViewSync: sending refresh');
       this.socket.emit('refresh');

@@ -31,16 +31,10 @@ requirejs.config({
     'googlemaps': '/js/googlemaps',
     'sv_svc': '/js/sv_svc',
     'validate': '/js/validate',
-		'mergemaps': '/js/mergemaps',
-		'dispmap': '/js/dispmap',
+    'mergemaps': '/js/mergemaps',
   },
   shim: {
     'config': { exports: 'config' },
-    'googlemaps': {
-      deps: [
-        'async!http://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false!callback'
-      ]
-    }
   },
   map: {
     '*': { 'jquery': 'jquery-private' },
@@ -69,8 +63,8 @@ function(
   // *** initialize the StreetView module
   var sv = new StreetViewModule(
     document.getElementById('pano'),
-		document.getElementById('Qpano'),
-		document.getElementById('Bpano'),
+    document.getElementById('Qpano'),
+    document.getElementById('Bpano'),
     LOCAL_CONFIG.master
   );
 
@@ -81,18 +75,22 @@ function(
   sv.on('size_changed', function(fov) {
     viewsync.resize(fov);
   });
-
+  
+  
   // *** link ViewSync state events to StreetView
-  sv.on('ready', function() {
+  sv.on('ready', function(pvdid) {
+     viewsync.on('pvd_changed', function(pvdid) {
+      sv.setPvd(pvdid);
+    }); 
     viewsync.on('pov_changed', function(pov) {
       sv.setPov(pov);
     });
     viewsync.on('pano_changed', function(panoid) {
       sv.setPano(panoid);
     });
-    viewsync.on('panopvd_changed', function(panopvd) {
+     viewsync.on('panopvd_changed', function(panopvd) {
       sv.setPanopvd(panopvd);
-    });
+    }); 
   });
 
   sv.on('refresh', function() {
@@ -106,6 +104,9 @@ function(
       if (LOCAL_CONFIG.pano != null) {
         viewsync.sendPano(LOCAL_CONFIG.pano);
       }
+      /* sv.on('pvd_changed', function(pvdid) {
+        viewsync.sendPvd(pvdid);
+      });*/
       sv.on('pov_changed', function(pov) {
         viewsync.sendPov(pov);
       });

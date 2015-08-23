@@ -22,12 +22,11 @@ function(config, L, Stapes, GMaps, XMaps, sv_svc, $) {
   var MAX_SEARCH_RADIUS = 3200;
 
   var EarthPosModule = Stapes.subclass({
-    constructor: function(map,provider) {
+    constructor: function(map) {
       var self = this;
-			this.provider = provider;
       this.map = map;
 
-      XMaps[this.provider].addListenerOnce(this.map, 'idle', function(event) {
+      GMaps.event.addListenerOnce(this.map, 'idle', function(event) {
         if (config.earth_pos_url) {
           var ajax_opts = {
             async: true,
@@ -35,8 +34,8 @@ function(config, L, Stapes, GMaps, XMaps, sv_svc, $) {
             dataType: 'json',
 
             success: function(data) {
-              var ll = new XMaps[this.provider].LatLng(data['cameraLat'], data['cameraLon']);
-              sv_svc[this.provider].getPanoramaByLocation(
+              var ll = new GMaps.LatLng(data['cameraLat'], data['cameraLon']);
+              sv_svc[0].getPanoramaByLocation(
                 ll,
                 MIN_SEARCH_RADIUS,
                 self.searchCB.bind(self),
@@ -58,7 +57,7 @@ function(config, L, Stapes, GMaps, XMaps, sv_svc, $) {
     },
 
     searchCB: function(panodata, stat) {
-      if (stat == XMaps[this.provider].StreetViewStatus.OK) {
+      if (stat == GMaps.StreetViewStatus.OK) {
         this.emit('found_location', panodata);
       }
     }

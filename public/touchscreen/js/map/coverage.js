@@ -25,8 +25,8 @@ function(config, L, Stapes,  XMaps) {
       var self = this;
 
       this.map = map;
-			this.provider = provider;
-		//	this.XMaps = MMaps[provider];
+      this.provider = provider;
+    //  this.XMaps = MMaps[provider];
 
       // instantiate street view coverage layer
       this.sv_coverage_layer = new XMaps[provider].StreetViewCoverageLayer();
@@ -48,12 +48,12 @@ function(config, L, Stapes,  XMaps) {
 
     _show_coverage_layer: function() {
       this.sv_coverage_layer.setMap(this.map);
-	// XMaps.coverSetMap(this.sv_coverage_layer,this.map);
+  // XMaps.coverSetMap(this.sv_coverage_layer,this.map);
     },
 
     _hide_coverage_layer: function() {
       this.sv_coverage_layer.removeMap(this.map);
-	 // XMaps.coverSetMap(this.sv_coverage_layer,null);
+   // XMaps.coverSetMap(this.sv_coverage_layer,null);
     },
   });
 

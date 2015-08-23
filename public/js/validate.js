@@ -7,9 +7,9 @@ define([], function() {
     // validate a Google panoid
     panoid: function(panoid) {
     // if (panoid.match(/^[\w-]{22}$/) != null)
-		// if (panoid.match(/^[\w-]+$/))
-		return true;
-			if (panoid.match(/^[*]+$/))
+    // if (panoid.match(/^[\w-]+$/))
+  return true;
+      if (panoid.match(/^[*]+$/))
         return true;
       else
         return false;
@@ -30,10 +30,10 @@ define([], function() {
       else
         return false;
     },
-		
-		// validate an angular field of view object
-    pvd: function(panopvd) {
-      if (1)
+    
+    // validate an angular field of view object
+    pvd: function(pvdid) {
+      if (pvdid in [0,1,2])
         return true;
       else
         return false;

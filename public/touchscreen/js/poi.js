@@ -36,7 +36,7 @@ function(config, L, Stapes, $, leftUI, doT) {
       this._load_poi_from_url(content_url);
     },
 
-    // return content from URL
+/*     // return content from URL
     _load_poi_from_url: function(content_url) {
       var self = this;
       var urls = content_url.split(",");
@@ -71,7 +71,24 @@ function(config, L, Stapes, $, leftUI, doT) {
         self._apply_categories(remote);
       });
 
+    }, */
+    
+    // return content from URL
+    _load_poi_from_url: function(content_url) {
+      var self = this;
+
+      $.ajax({
+          url: content_url,
+          dataType: 'json',
+          success: function(remote_data) {
+            self._apply_categories(remote_data);
+          },
+          error: function(jqXHR, textStatus, errorThrown) {
+            L.error('load_poi_from_url():', textStatus, ':', errorThrown);
+          }
+      });
     },
+
 
     _apply_categories: function(categories) {
       var self = this;
@@ -100,7 +117,9 @@ function(config, L, Stapes, $, leftUI, doT) {
       });
 
       $('.poi-item').each(function(index, item) {
-        self.emit('add_location',$(item).attr('panoid'));
+      //  var panopvd = this._poi2panopvd(item);
+        self.emit('add_location', $(item).attr('panoid'));
+        //self.emit('add_location',this._poi2panopvd($(item));
       });
 
       this._activate($('.poi-tab-inactive').first());
@@ -112,7 +131,7 @@ function(config, L, Stapes, $, leftUI, doT) {
 
     _activate: function(category) {
       var self = this;
-			
+      
       this._deactivate_all();
 
       var $category = $(category);
@@ -131,16 +150,42 @@ function(config, L, Stapes, $, leftUI, doT) {
       $('.poi-list-active').attr('class', 'poi-list-inactive');
       $('.poi-item').off('click');
     },
+    
+    _pvdname2id: function(pvdname){
+      if('google' == pvdname) return 0;
+      else if('tencent' == pvdname) return 1;
+      else if('baidu' == pvdname) return 2;
+      else return -1;
+    },
+    
+    _poi2panopvd: function($loc){
+      var pvd_attr = $loc.attr('provider');
+      if(pvd_attr === 'undefined') pvd_attr = "google";
+      var pvdid = this._pvdname2id(pvd_attr);
+      var panoid = $loc.attr('panoid');
+    
+    var panopvd = {pano:panoid, pvd:pvdid};
+      return panopvd;
+    },
+    
 
     _clicked: function(loc) {
       var $loc = $(loc);
-			var panoid = $loc.attr('panoid');
- //   this.emit('select_location', panoid);
-			var pvd_attr = $loc.attr('provider');
-			if(pvd_attr == null) pvd_attr = "google";
-			var panopvd = {	pano: panoid,	pvd: pvd_attr};
-			this.emit('select_provider',panopvd);
-					
+      
+     // var panopvd = this._poi2panopvd($loc);
+     // this.emit('switch_provider',panopvd);
+      var pvd_attr = $loc.attr('provider');
+      if(pvd_attr === 'undefined') pvd_attr = "google";
+      var pvdid = this._pvdname2id(pvd_attr);
+      var panoid = $loc.attr('panoid');
+       if(pvdid == -1){
+        this.emit('select_location', panoid);
+      }
+      else{
+        var panopvd = {pano:panoid, pvd:pvdid};
+        this.emit('switch_provider',panopvd);
+      } 
+    
       var hdg_attr = $loc.attr('heading');
       if (hdg_attr != null) {
         var hdg = Number(hdg_attr);

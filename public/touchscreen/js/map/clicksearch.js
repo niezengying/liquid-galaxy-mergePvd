@@ -25,11 +25,12 @@ function(config, L, Stapes, XMaps, sv_svc) {
       var self = this;
 
       this.map = map;
+      this.provider = provider;
 
       this.search_fail_balloon = new XMaps[provider].InfoWindow({
         content: '<img src="icons/sv_fail.png" height="40" width="40" />',
         disableAutoPan: true,
-				map: this.map
+        map: this.map
       });
       this.ballon_close_timeout = null;
 
@@ -58,9 +59,9 @@ function(config, L, Stapes, XMaps, sv_svc) {
 
         console.debug('min', min_search_radius, 'max', max_search_radius);
 
-				//var pos = XMaps[provider].getEventPos(event); // event.latLng
+        var pos = XMaps[provider].getEventPos(event); // event.latLng
         sv_svc[provider].getPanoramaByLocation(
-          event.latLng,
+          pos,
           min_search_radius,
           function(data, stat, search_latlng) {
             if(stat == XMaps[provider].StreetViewStatus.OK) {

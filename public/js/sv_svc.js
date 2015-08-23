@@ -14,82 +14,14 @@
 ** limitations under the License.
 */
 
-define(['googlemaps','tencentmaps','baidumaps'], function(GMaps,QMaps,BMaps) {
-  // provide StreetViewService as a singleton in this module
-	
-	function StreetViewService(apiProvider){
-	  var sv;
-	  switch(apiProvider)
-	  {
-	  case 1:
-			sv = new GMaps.StreetViewService();
-	    break;
-			
-	  case 2:		
-			sv = new QMaps.PanoramaService();
-			sv.getPanoramaById = function(panoid,tencentKey){
-				var data = null;
-				console.log(panoid);
-				if (panoid.match(/^\w+$/)){		
-				$.getJSON("http://apis.map.qq.com/ws/streetview/v1/getpano?id="+panoid+"&radius=100&key="+tencentKey+"&output=jsonp&callback=?",
-					function(ret) {
-					console.log(ret.status);
-					if(ret.status == 0){
-						//data = {location: {pano:ret.detail.id,latLng: new QMaps.LatLng(ret.detail.location.lat,ret.detail.location.lng),description:ret.detail.description}};
-						data = {location: {pano:ret.detail.id,latLng:ret.detail.location,description:ret.detail.description}};
-						cb(data,StreetViewStatus.OK);
-					}	 
-				});
-			}};
-			
-			sv.getPanoramaByLocation = function(position, radius, cb){
-				sv.getPano(position,radius,function(ret){
-				if(ret !== null){
-					data = {location: {pano:ret.id,latLng:ret.latlng,description:ret.description} };
-					cb(data,StreetViewStatus.OK);
-				}	 
-	     });
-			};
-	    break;
-			
-	  case 3:
-			sv = new BMaps.PanoramaService();
-			var tmpsv = new BMaps.PanoramaService();
-			sv.getPanoramaById = function(panoid){
-				tmpsv.getPanoramaById(panoid,
-				function(ret){
-					if (ret == null) 	return;  
-					data = {
-						location: {pano:ret.id,latLng:ret.position,description:ret.description},
-						links:ret.links,
-						tiles:ret.tiles
-					};
-					cb(data,StreetViewStatus.OK);	
-				});		
-			};
-			
-			sv.getPanoramaByLocation = function(position,radius,cb){
-				tmpsv.getPanoramaByLocation(position,radius,function(ret){
-					if (ret == null) 	return;  
-					data = {
-						location: {pano:ret.id,latLng:ret.position,description:ret.description},
-						links:ret.links,
-						tiles:ret.tiles
-					};
-							
-					console.log(ret.position);
-					console.log(ret.id);
-					cb(data,StreetViewStatus.OK);	
-				});	
-			};	
-			break;
-		}
-	  return sv;
-   }
+define(['googlemaps','mergemaps'], function(GMaps,XMaps) {
   
-	var svByPvd = function(provider){
-	var apiProvider = provider+1;
-	var sv_svc = StreetViewService(apiProvider);
+  
+  var svByPvd = function(provider){
+    
+  // provide StreetViewService as a singleton in this module
+  var sv_svc = new XMaps[provider].StreetViewService();
+
   // extensions to getPanoramaByLocation:
   // optional expansion to max_radius
   // pass original search latlng to the callback
@@ -110,7 +42,7 @@ define(['googlemaps','tencentmaps','baidumaps'], function(GMaps,QMaps,BMaps) {
 
   // recursive callback for expanding search
   function expandingCB(data, stat) {
-    if (stat == GMaps.StreetViewStatus.OK) {
+    if (stat == XMaps[provider].StreetViewStatus.OK) {
       // success
       this.cb(data, stat, this.latlng);
 
@@ -135,34 +67,36 @@ define(['googlemaps','tencentmaps','baidumaps'], function(GMaps,QMaps,BMaps) {
     // explicit cleanup
     delete this;
   }
-	
-	
-  // make StreetViewPanoramaData friendlier
-  function serializePanoData(panoData) {
-    panoData.location.latLng = GMaps.LatLng({
-	  lat: panoData.location.latLng.lat(),
-	  lng: panoData.location.latLng.lng()
-    });
-  }
-	
 
-  return{
+        
+  // make StreetViewPanoramaData friendlier
+   function serializePanoData(panoData) {
+     if(XMaps[provider].Apiprovider == 1){
+      panoData.location.latLng = XMaps[provider].LatLng({
+      lat: panoData.location.latLng.lat(),
+      lng: panoData.location.latLng.lng()
+      });
+     }
+  } 
+   
+  
+  return {
     // passthrough ID search
     getPanoramaById: sv_svc.getPanoramaById,
-	
+
     // use our wrapped location search
     getPanoramaByLocation: getPanoramaByLocation,
 
     serializePanoData: serializePanoData
-	};
-	
-	};
-	
-	var sv_svcs = new Array(3); 
-	
-	for(i = 0; i<3;i++){
-		sv_svcs[i] = svByPvd(i);
-	}
-	return sv_svcs;
-	
-	});
+  };
+  
+  };
+  
+  var sv_svcs = new Array(3); 
+  
+  for(i = 0; i<3;i++){
+    sv_svcs[i] = svByPvd(i);
+  }
+  return sv_svcs;
+  
+});

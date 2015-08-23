@@ -31,7 +31,7 @@ requirejs.config({
     'socketio': '/socket.io/socket.io',
     'googlemaps': '/js/googlemaps',
     'sv_svc': '/js/sv_svc',
-		'mergemaps': '/js/mergemaps'
+    'mergemaps': '/js/mergemaps'
   },
   shim: {
     'config': { exports: 'config' },
@@ -40,11 +40,11 @@ requirejs.config({
         'async!http://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false!callback'
       ]
     },
-	'baidumaps': {
+  'baidumaps': {
       deps: [
        'async!http://api.map.baidu.com/api?v=2.0&ak=NkArbcs6kW74wrlpZcTNHU2g&sensor=false!callback'
       ]
-	}
+  }
   },
   map: {
     '*': { 'jquery': 'jquery-private' },
@@ -53,23 +53,24 @@ requirejs.config({
 });
 
 require(
-['map', 'poi', 'photospheres', 'viewsync', 'zoom', 'activities'],
+['map', 'poi', 'photospheres', 'viewsync', 'zoom', 'activities','providers'],
 function(
   MapModule,
   POIModule,
   PhotoSpheresModule,
   ViewSyncModule,
   ZoomModule,
-  ActivitiesModule
+  ActivitiesModule,
+  ProvidersModule
 ) {
 
   document.body.style['font-size'] = config.touchscreen.font_scale + 'em';
 
   var map = new MapModule(
-	document.getElementById('Gmap_canvas'),
-	document.getElementById('Qmap_canvas'),
-	document.getElementById('Bmap_canvas')
-	);
+    document.getElementById('Gmap_canvas'),
+    document.getElementById('Qmap_canvas'),
+    document.getElementById('Bmap_canvas')
+  );
 
   var poi = new POIModule(
     document.getElementById('poi-template')
@@ -82,7 +83,11 @@ function(
   var activities = new ActivitiesModule(
     document.getElementById('activities-template')
   );
-
+  
+//  var providers = new ProvidersModule(
+ //   document.getElementById('providers-template')
+ // );
+  
   if (config.touchscreen.show_zoomctl) {
     var zoom_ctl = new ZoomModule();
 
@@ -94,30 +99,43 @@ function(
       map.zoom_out();
     });
   }
-
+  
   viewsync.on('ready', function() {
+    map.on('pvd', function(pvdid) {
+      viewsync.sendPvd(pvdid);
+    });
     map.on('pano', function(panoid) {
       viewsync.sendPano(panoid);
     });
-		map.on('panopvd', function(panopvd) {
-			viewsync.sendPvd(panopvd);
-		});
     map.on('meta', function(data) {
       viewsync.sendMeta(data);
     });
+    map.on('panopvd',function(panopvd){
+      viewsync.sendPanopvd(panopvd);
+    });
   });
-
-	viewsync.on('panopvd', function(panopvd) {
-    map.update_map_pvd(panopvd);
-  });
-	
+  
+  viewsync.on('pvd', function(pvdid) {
+    map.update_map_by_pvd(pvdid);
+  });  
+   
   viewsync.on('pano', function(panoid) {
     map.update_pano_by_id(panoid);
   });
-
+  
+  viewsync.on('panopvd', function(panopvd) {
+    map.update_by_panopvd(panopvd);
+  });
+  
   poi.on('add_location', function(loc) {
     // TODO: support for latlng lookup
     map.add_location_by_id(loc);
+  });
+
+  poi.on('add_location_by_panopvd', function(loc) {
+    // TODO: support for latlng lookup
+    // map.add_location_by_id(loc);
+    map.add_location_by_panopvd(loc);
   });
 
   poi.on('select_location', function(loc) {
@@ -125,31 +143,33 @@ function(
     map.select_pano_by_id(loc);
   });
 
-	poi.on('select_provider',function(panopvd){
-		// TODO: support for switching provider
-		viewsync.sendPvd(panopvd);
-	});
-	
+  poi.on('switch_provider',function(panopvd){
+    // TODO: support for switching provider
+    map.update_by_panopvd(panopvd);
+  });
+  
   poi.on('location_heading', function(hdg) {
     viewsync.sendHdg(hdg);
   });
-
+  
   photospheres.on('add_location', function(panoid) {
-    map.add_location_by_id(panoid);
+    map.add_photosphere_by_id(panoid);
   });
 
   map.on('ready', function() {
     viewsync.refresh();
   });
 
+  photospheres.init();
+
   map.init();
 
   viewsync.init();
 
   poi.init();
-
-  photospheres.init();
-
+ 
   activities.init();
+  
+  //providers.init();
 
 });

@@ -23,22 +23,22 @@ function(config, L, Stapes, XMaps) {
   var SVMarkerModule = Stapes.subclass({
     constructor: function(map,provider) {
       this.map = map;
-			this.provider = provider;
-			this.default_center = new XMaps[this.provider].LatLng(
+      this.provider = provider;
+      this.default_center = new XMaps[this.provider].LatLng(
         config.touchscreen.default_center[XMaps[this.provider].apiProvider - 1].lat,
         config.touchscreen.default_center[XMaps[this.provider].apiProvider - 1].lng
       );
-	
+  
       this.sv_marker = new XMaps[this.provider].Marker({
-				map: this.map,
+        map: this.map,
         position: this.default_center,
         title: 'Street View',
         icon: 'icons/sv_sprite.png',
         clickable: false,
-				enableClicking: false
+        enableClicking: false
       });
     },
-	
+  
     move: function(latlng) {
       this.sv_marker.setPosition(latlng);
       this.sv_marker.setMap(this.map);

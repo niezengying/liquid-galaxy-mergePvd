@@ -41,6 +41,8 @@ function(config, L, validate, Stapes, io) {
       this.pitchshift  = null;
       this.origin      = null;
       this.socket      = null;
+ //     this.provider    = config.provider -1;
+//      this.pano        = config.display.default_pano[config.provider-1];
     },
 
     // PUBLIC
@@ -78,22 +80,23 @@ function(config, L, validate, Stapes, io) {
         L.error('ViewSync: bad panoid to sendPano!');
         return;
       }
-
-      L.info('ViewSync: sendPano', panoid);
       this.socket.emit('pano', panoid);
+      L.info('ViewSync: sendPano', panoid);
     },
-		
-		// *** sendPvd(pvd)
+    
+    // *** sendPvd(pvd)
     // send a pvd change to the ViewSync relay
-		sendPvd: function(pvd) {
-			if (!validate.pvd(pvd)) {
+   /*   sendPvd: function(pvd) {
+      console.log('sv_syn.sendPvd');
+      if (!validate.pvd(pvd)) {
         L.error('ViewSync: bad provider to sendPano!');
         return;
       }
-			L.info('ViewSync: sendPvd', pvd);
-			this.socket.emit('pvd',pvd);
-		},
-
+      L.info('ViewSync: sendPvd', pvd);
+      this.socket.emit('pvd',pvd);
+    },  
+    */
+ 
     // *** sendMeta(<serialized>google.maps.StreetViewPanoramaData)
     // send new pano meta to the ViewSync relay
     sendMeta: function(data) {
@@ -104,6 +107,11 @@ function(config, L, validate, Stapes, io) {
     // request the current state from the relay
     refresh: function() {
       this.socket.emit('refresh');
+    },
+    
+    getParams: function(){
+  //    var panopvd = {pano:this.pano, pvd:this.provider};
+      this.emit('cur_params',panopvd);
     },
 
     // *** init()
@@ -119,22 +127,29 @@ function(config, L, validate, Stapes, io) {
         console.debug('ViewSync: ready');
         self.emit('ready');
       });
-			
-			this.socket.on('sync panopvd',function(panopvd){
-				if(!validate.pvd(panopvd)){
-					L.error('ViewSync: bad panopvd from socket!');
-          return;
-				}
-				
-				self._recvPanopvd(panopvd);
-			});
-
+      
+      this.socket.on('sync params',function(panopvd){
+  //      this.provider = panopvd.pvd;
+   //     this.pano = panopvd.pano;
+        self._recvParams(panopvd)
+      });
+      
+       this.socket.on('sync pvd', function(pvdid) {
+   //     this.provider = pvdid;
+        self._recvPvd(pvdid);
+      }); 
+    
+      this.socket.on('sync panopvd', function(panopvd) {   
+    //    this.provider = panopvd.pvd;
+    //    this.pano = panopvd.pano;
+        self._recvPanopvd(panopvd);
+      });
+      
       this.socket.on('sync pano', function(panoid) {
         if (!validate.panoid(panoid)) {
           L.error('ViewSync: bad panoid from socket!');
           return;
         }
-
         self._recvPano(panoid);
       });
 
@@ -145,15 +160,6 @@ function(config, L, validate, Stapes, io) {
         }
 
         self._recvPov(pov);
-      });
-			
-			this.socket.on('sync pvd', function(pvd) {
-        if (!validate.pvd(pvd)) {
-          L.error('ViewSync: bad pvd from socket!');
-          return;
-        }
-
-        self._recvPvd(pvd);
       });
 
       this.socket.on('connect_failed', function() {
@@ -180,12 +186,23 @@ function(config, L, validate, Stapes, io) {
     _applyPano: function(panoid) {
       this.emit('pano_changed', panoid);
     },
-		
-		// *** _applyPvd(provider)
+    
+    // *** _applyPvd(provider)
+    // emits a provider change to ViewSync listeners
+    _applyPvd: function(pvdid) {
+      this.emit('pvd_changed', pvdid);
+    },
+    
+    // *** _applyPvd(panopvd)
     // emits a provider change to ViewSync listeners
     _applyPanopvd: function(panopvd) {
       this.emit('panopvd_changed', panopvd);
     },
+    
+    _initParams: function(panopvd){
+      this.emit('params_got',panopvd);
+    },
+
 
     // *** _translatePov(google.maps.StreetViewPov)
     // translate the point of view by local offsets
@@ -207,12 +224,20 @@ function(config, L, validate, Stapes, io) {
     _recvPano: function(panoid) {
       this._applyPano(panoid);
     },
-		
-		// *** _recvPvd(pvd)
+    
+    _recvPvd: function(pvdid) {
+      this._applyPvd(pvdid);
+    },
+    
+    // *** _recvPvd(pvd)
     // unpack and process the provider from a relay message
     _recvPanopvd: function(panopvd) {
       this._applyPanopvd(panopvd);
     },
+    
+    _recvParams: function(panopvd){
+       this._initParams(panopvd);
+    }
 
   });
 

@@ -21,7 +21,7 @@ function(config, L, Stapes,  XMaps, sv_svc) {
   var POIModule = Stapes.subclass({
     constructor: function(map,provider) {
       this.map = map;
-			this.provider = provider;
+      this.provider = provider;
     },
 
     _add_location_marker: function(panodata) {
