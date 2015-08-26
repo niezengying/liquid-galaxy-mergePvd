@@ -1,4 +1,4 @@
-/*
+/*份
 ** Copyright 2014 Google Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -126,109 +126,9 @@ var mapByPvd  = function(provider){
     }
    return size;
    }
-   
-
-/*     // street view service
-  function PanoSvFrom() {
-    var sv;
-    switch(apiProvider)
-    {
-    case 1:
-      sv = GMaps.StreetViewService;
-      break;
-    case 2:    
-      sv = QMaps.PanoramaService;
-      break;
-    case 3:
-      sv = BMaps.PanoramaService; 
-      break;
-    }    
-    return sv;
-   }
-   
-   function StreetViewService(){
-    PanoSvFrom.apply(this);  
-    this.getPanoramaById = getPanoramaById;
-    this.getPanoramaByLocation = getPanoramaByLocation;
-   }
-  
-   function getPanoramaById(panoid,cb)
-   {
-    switch(apiProvider)
-    {
-    case 1:
-      var sv_svc = new GMaps.StreetViewService();
-      sv_svc.getPanoramaById(panoid,cb);
-      break;
-    
-    case 2:  
-      var data = null;
-      if (panoid.match(/^\w+$/))
-      {    
-      $.getJSON("http://apis.map.qq.com/ws/streetview/v1/getpano?id="+panoid+"&radius=100&key="+tencentKey+"&output=jsonp&callback=?",
-        function(ret) {
-        if(ret.status == 0){
-          data = {location: {pano:ret.detail.id,latLng:new QMaps.LatLng(ret.detail.location.lat,ret.detail.location.lng),description:ret.detail.description}};
-          cb(data,StreetViewStatus.OK);
-        }   
-       });  
-      }
-      break;
-    
-    case 3:
-      data = null;
-      var sv_svc = new BMaps.PanoramaService();
-      sv_svc.getPanoramaById(panoid,
-      function(ret){
-      if (ret == null) {  
-        return;  
-      } 
-      data = {location: {pano:ret.id,latLng: ret.position,description:ret.description},links:ret.links,tiles:ret.tiles};
-      cb(data,StreetViewStatus.OK);  
-    });    
-    break;
-    }
-   };
-   
-   function getPanoramaByLocation(position, radius, cb)  
-   {
-    switch(apiProvider)
-    {
-    case 1:
-      var sv_svc = new GMaps.StreetViewService();
-      sv_svc.getPanoramaByLocation(position,radius,cb);
-      break;
-    
-    case 2:  
-      var sv_svc = new QMaps.PanoramaService();
-      sv_svc.getPano(position,radius,function(ret){
-        if(ret !== 0){
-        data = {location: {pano:ret.id,latLng:ret.latlng,description:ret.description}};
-        cb(data,StreetViewStatus.OK);
-        }   
-      });
-    break;
-    
-    case 3:
-      var sv_svc = new BMaps.PanoramaService();
-      sv_svc.getPanoramaByLocation(position,radius,function(ret){
-        if (ret == null) {  
-          return;  
-        } 
-        data = {
-          location: {pano:ret.id,latLng:ret.position,description:ret.description},
-          links:ret.links,
-          tiles:ret.tiles
-        };
-        cb(data,StreetViewStatus.OK);  
-      });    
-      break;
-    }
-   };
-     */
   
      
-  
+  // streetview Service
   var tmpsv = new BMaps.PanoramaService();   
   function StreetViewService(){
     var sv;
@@ -341,8 +241,8 @@ var mapByPvd  = function(provider){
     // explicit cleanup
       delete this;
     } 
-
- 
+    
+    
   // Map Module     
    function Map(div,opt)
    {
@@ -356,6 +256,9 @@ var mapByPvd  = function(provider){
         map.setCenter(center);
         map.setZoom(zoom);
       };
+      map.setCustom = function(opt){
+        map.setOptions({styles: opt});
+      };
       break;
     case 2:
       map = new QMaps.Map(div,opt); 
@@ -365,19 +268,31 @@ var mapByPvd  = function(provider){
         map.setCenter(center);
         map.setZoom(zoom);
       };
+      map.setCustom = function(opt){
+        map.setOptions({
+          navigationControl: false,
+          scaleControl: false,
+          panControl: false,
+          zoomControl: false,
+        });
+      };
+    
       break;
    case 3:
       map = new BMaps.Map(div,opt);  
       map.setStreetView = map.setPanorama;
       map.setOptions = function(opt){
-      if(opt.mapTypeControl){
-        map.enableScrollWheelZoom();
-      }
+        if(opt.mapTypeControl){
+          map.enableScrollWheelZoom();
+        }
       };
-      map.setStreetView = map.setPanorama;
+      map.setCustom = function(opt){
+        if(opt.mapTypeControl){
+          map.enableScrollWheelZoom();
+        }
+      }
       break;
     }
-    map.visualRefresh = true;
     return map;
    }
    
@@ -481,8 +396,8 @@ var mapByPvd  = function(provider){
     case 3: 
       marker = new BMaps.Marker(opt.position);
       marker.setMap = function(map){
-        marker.show();
         marker.setTop(true);
+        marker.show();
       };
       marker.removeMap = function(map){
         marker.hide();
@@ -649,221 +564,34 @@ var mapByPvd  = function(provider){
     }
    }
   
-
-   
-   function disableDefaultUI(map,mystyle)
-   {
-    if(apiProvider==1) 
-  {
-  if(mystyle!="")
-      map.setOptions({styles: mystyle,disableDefaultUI: true});
-   else
-    map.setOptions({disableDefaultUI: true});
-  }
-  else if(apiProvider==2)
-  {
-    map.setOptions({navigationControl: false,
-    scaleControl: false,
-    panControl: false,
-    zoomControl: false,
-    mapTypeControl:false});
-   }
-  else if(apiProvider==3)
-  {
-
-  }
-   }
-   
-   function disableSVDefaultUI()
-   {
-   
-    var svOptions;
-    if(apiProvider==1) 
-  {
-    svOptions = {
-        visible: true,
-        disableDefaultUI: true
-      };
-  }
-  else if(apiProvider==2)
-  {
-    svOptions = {
-      visible: true,
-        disableCompass: true,
-    disableMove:false
-    };
-  }
-  else if(apiProvider==3)
-  {
-    svOptions = {
-      navigationControl: false,
-    indoorSceneSwitchControl:false
-    };
-  }
-   return svOptions;
-   }
-   
-   function enableSVDefaultUI(svOptions)
-   {
-     if(apiProvider==1)
-   {
-      svOptions.linksControl = true;
-   }
-     else if(apiProvider==2)
-   {
-      svOptions.linksControl = true;
-    svOptions.disableCompass = false;
-    svOptions.disableMove = false;
-   }
-    else if(apiProvider==3)
-   {
-      svOptions.navigationControl=true;
-    svOptions.indoorSceneSwitchControl=true;
-   } 
-   }
-   
-   
-   function setHdgIcon(headingIndex)
-   {
-     var markerIcon;
-     if(apiProvider==1) 
-   {
-      var sWidth = 56.75*parseInt(headingIndex%4);
-      var sHeight = 56.75*parseInt(headingIndex/4);
-    markerIcon = {
-        url: 'icons/sv_markers.png',
-          // This marker is 56.75 pixels wide by 56.75 pixels tall.
-          size: new GMaps.Size(56.75,56.75),
-          // The origin for this image is sWidth,sHeight.
-          origin: new GMaps.Point(sWidth,sHeight),
-          // The anchor for this image is the base of the flagpole at 56.75/2,40.
-          anchor: new GMaps.Point(56.75/2,40)
-     };
-   }
-   else if(apiProvider==2)
-   {
-      var sWidth = 56.67*parseInt(headingIndex%3);
-    var sHeight = 56.75*parseInt(headingIndex/3);
-    markerIcon = new QMaps.MarkerImage(
-    "icons/sv_soso_markers.png",
-    new QMaps.Size(56.67,56.75),
-    new QMaps.Point(sWidth,sHeight),
-    new QMaps.Point(56.67/2,32)
-    );
-   }
-   else if(apiProvider==3)
-   {
-      var sWidth = 56.67*parseInt(headingIndex%3);
-    var sHeight = 56.75*parseInt(headingIndex/3);
-    markerIcon = {
-    imageUrl: "icons/sv_soso_markers.png",
-    imageSize: new BMaps.Size(56.67,56.75),
-    imageOffset: new BMaps.Pixel(sWidth,sHeight),
-    anchor: new BMaps.pixel(56.67/2,32)
-    }
     
-    
-   }
-   return markerIcon;
-   }
-   
-   function otherSet(streetview,map,zoom,mymode)
-   {
-     if(apiProvider==1) 
-   {
-      streetview.setOptions({ mode: mymode });  
-       // *** apply the custom streetview object to the map
-        map.setStreetView( streetview );
-   }
-   else if(apiProvider==2) 
-   {
-     streetview.setZoom(zoom);
-   }
-   else if(apiProvider==3) 
-   {
-     streetview.setZoom(zoom);
-   }
-   }
-   
-
-   
-   function DeletePoi(poiArr)
-   {
-      var nPoiArr = poiArr;
-    
-    for(var i = 0; i < poiArr.length; ++i)
-    {
-      var nPoiSubArr = new Array();
-     for(var j = 0; j < poiArr[i].objects.length; ++j)
-     {
-       if((poiArr[i].objects[j].identifier).match(/^[\w-]{22}$/)&&apiProvider==1)
-     {
-        nPoiSubArr.push(poiArr[i].objects[j]);
-     }
-     else if(!(poiArr[i].objects[j].identifier).match(/^[\w-]{22}$/)&&apiProvider==2)
-     {
-        nPoiSubArr.push(poiArr[i].objects[j]);
-     }
-     }
-      nPoiArr[i].objects = nPoiSubArr;
-    }
-    return nPoiArr;
-   }
-     
-  
-  function decompLatlng(latlng, cb){
-    switch(apiProvider){
-    case 1:
-      lat = latlng.lat();
-      lbg = latlng.lng();
-      cb(lat,lng);
-      break;
-    case 2:
-      lat = latlng.lat;
-      lng = latlng.lng;
-      cb(lat,lng);
-      break;
-    case 3:
-      lat = latlng.lat;
-      lng = latlng.lng;
-      cb(lat,lng);
-      break;
-    }
-  }
-
    
   return{
   apiProvider: apiProvider,
+  MapTypeId: MapTypeId,
+  ControlPosition: ControlPosition,  
   StreetViewStatus: StreetViewStatus,
-  StreetViewService: StreetViewService,
+
+  
+  Point: Point,
   LatLng: LatLng,
   Size: Size,
-  Point: Point,
+
   Map: Map,
   StreetViewPanorama: StreetViewPanorama,
+  StreetViewService: StreetViewService,
+  
   
   Marker: Marker,
-  
-  MapTypeId: MapTypeId,
-  ControlPosition: ControlPosition,
   InfoWindow: InfoWindow,
-  trigger: trigger,
-  getEventPos: getEventPos,
-
-  disableDefaultUI: disableDefaultUI,
-  disableSVDefaultUI: disableSVDefaultUI,
-  enableSVDefaultUI: enableSVDefaultUI,
   StreetViewCoverageLayer:StreetViewCoverageLayer,
-  
+
+  getEventPos: getEventPos,
+  trigger: trigger,
   addListener: addListener,
   addListenerOnce: addListenerOnce,
 
-  setHdgIcon:setHdgIcon,
-  otherSet:otherSet,
-
-  SetProvider:SetProvider,
-  DeletePoi:DeletePoi,
-  //serializePanoData:serializePanoData
+  SetProvider:SetProvider
   }
   
   };

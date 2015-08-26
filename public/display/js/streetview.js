@@ -97,12 +97,12 @@ function(config, L, validate, Stapes, XMaps) {
       
       // *** create three streetview query object
       this.cvArray = [this.$Gcanvas,this.$Qcanvas,this.$Bcanvas];      
-			for(i=0;i<3;i++){
-				
+      for(i=0;i<3;i++){
+        
         // *** create a local streetview query object
         this.sv_svc = new XMaps[i].StreetViewService();
         this._change_sv_div(i);
-				
+        
         // *** options for the map object
         // the map will never be seen, but we can still manipulate the experience
         // with these options.
@@ -211,33 +211,51 @@ function(config, L, validate, Stapes, XMaps) {
           }
         });
 
-         // *** wait for an idle event before reporting module readiness
+          // *** wait for an idle event before reporting module readiness
         XMaps[idx].addListenerOnce(this.mapArray[idx], 'idle', function() {
-            console.debug('StreetView: ready map',idx);
+            console.debug('StreetView: ready map');
             self.emit('_ready');
         });    
+  
+              
+        XMaps[idx].addListener(this.mapArray[idx], 'idle', function() {
+            console.log('idle',self.provider);
+        });    
+        
+        XMaps[idx].addListener(this.mapArray[idx], 'tilesloaded', function() {
+            console.log('tilesloaded',self.provider);
+        });   
+
+        XMaps[idx].addListener(this.mapArray[idx], 'tilesloaded', function() {
+            console.log('tilesloaded',self.provider);
+        });    
+        
+        XMaps[idx].addListener(this.svArray[idx], 'zoom_changed', function() {
+            console.log('zoom_changed',self.provider);
+        });  
+        
 
       }
-/*   XMaps[0].addListenerOnce(this.mapArray[0], 'idle', function() {
-					console.debug('StreetView: ready map',0);
-					self.emit('_ready');
-		 });
-		 
-			XMaps[1].addListenerOnce(this.svArray[1], 'loaded', function() {
-					console.debug('StreetView: ready map',1);
-					self.emit('_ready');
-		 });  
-		 
-			XMaps[1].addListenerOnce(this.mapArray[1], 'idle', function() {
-					console.debug('StreetView: ready map',1);
-					self.emit('_ready');
-		 }); 
-		 
-		 XMaps[2].addListenerOnce(this.mapArray[2], 'idle', function() {
-					console.debug('StreetView: ready map',2);
-					self.emit('_ready');
-		 });
-*/
+/*       XMaps[0].addListenerOnce(this.mapArray[0], 'idle', function() {
+          console.debug('StreetView: ready map',0);
+          self.emit('_ready');
+     });
+     
+      XMaps[1].addListenerOnce(this.svArray[1], 'loaded', function() {
+          console.debug('StreetView: ready map',1);
+          self.emit('_ready');
+     });   
+     
+      XMaps[1].addListenerOnce(this.mapArray[1], 'tilesloaded', function() {
+          console.debug('StreetView: ready map',1);
+          self.emit('_ready');
+     });  
+     
+     XMaps[2].addListenerOnce(this.mapArray[2], 'idle', function() {
+          console.debug('StreetView: ready map',2);
+          self.emit('_ready');
+     }); */
+
       var time = 0
       this.on('_ready', function() {
         time++;
@@ -248,8 +266,7 @@ function(config, L, validate, Stapes, XMaps) {
       this.on('ready', function() {
         self.emit('refresh');
       });
-
-
+      
       // *** handle window resizing
       window.addEventListener('resize',  function() {
         self._resize();
@@ -301,21 +318,28 @@ function(config, L, validate, Stapes, XMaps) {
     // *** setPanopvd(provider)
     // switch to the provided provider, immediately
     setPanopvd: function(panopvd) {
+      var self = this;      
       var panoid = panopvd.pano;
       var pvdid = panopvd.pvd;
-      
+        
       if (pvdid != this.provider) {
-        this.provider = pvdid;
         this.pano = panoid;
+        this.provider = pvdid;
         this.map = this.mapArray[pvdid];
-        this.streetview = this.svArray[pvdid];
+        this._change_map_shown(pvdid);
+
+        this.svArray[pvdid].setPano(panoid);
+        this.streetview = self.svArray[pvdid];
+        this.resetPov();  
       }
-     
-      this.pano = panoid;
-      this.svArray[pvdid].setPano(panoid);
-      this.streetview = this.svArray[pvdid];
-      this.resetPov();
-      this._change_map_shown(pvdid);
+      else{
+        this.pano = panoid;
+        this.svArray[pvdid].setPano(panoid);        
+        console.log("setPano");
+        this.streetview = this.svArray[pvdid];
+        this.resetPov();
+      }
+
     },    
 
     // *** setPov(XMaps.StreetViewPov)

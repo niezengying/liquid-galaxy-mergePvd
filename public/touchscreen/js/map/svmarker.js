@@ -25,8 +25,8 @@ function(config, L, Stapes, XMaps) {
       this.map = map;
       this.provider = provider;
       this.default_center = new XMaps[this.provider].LatLng(
-        config.touchscreen.default_center[XMaps[this.provider].apiProvider - 1].lat,
-        config.touchscreen.default_center[XMaps[this.provider].apiProvider - 1].lng
+        config.touchscreen.default_center[provider].lat,
+        config.touchscreen.default_center[provider].lng
       );
   
       this.sv_marker = new XMaps[this.provider].Marker({
@@ -34,8 +34,7 @@ function(config, L, Stapes, XMaps) {
         position: this.default_center,
         title: 'Street View',
         icon: 'icons/sv_sprite.png',
-        clickable: false,
-        enableClicking: false
+        clickable: false
       });
     },
   

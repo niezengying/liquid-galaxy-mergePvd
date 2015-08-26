@@ -32,6 +32,7 @@ function(config, L, Stapes, $) {
 
       $(document).ready(function() {
         $.getJSON(self._get_content_url(), function(photospheres) {
+          if(photospheres = {}) return;
           $.each(photospheres.result, function(key, val) {
             self._add_photosphere(val);
           });

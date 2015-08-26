@@ -118,8 +118,9 @@ function(config, L, Stapes, $, leftUI, doT) {
 
       $('.poi-item').each(function(index, item) {
       //  var panopvd = this._poi2panopvd(item);
-        self.emit('add_location', $(item).attr('panoid'));
-        //self.emit('add_location',this._poi2panopvd($(item));
+      //  console.log(self._poi2panopvd($(item)));
+      //  self.emit('add_location', $(item).attr('panoid'));
+        self.emit('add_location_by_panopvd',self._poi2panopvd($(item)));
       });
 
       this._activate($('.poi-tab-inactive').first());
@@ -155,16 +156,14 @@ function(config, L, Stapes, $, leftUI, doT) {
       if('google' == pvdname) return 0;
       else if('tencent' == pvdname) return 1;
       else if('baidu' == pvdname) return 2;
-      else return -1;
+      else return 0;
     },
     
     _poi2panopvd: function($loc){
-      var pvd_attr = $loc.attr('provider');
-      if(pvd_attr === 'undefined') pvd_attr = "google";
-      var pvdid = this._pvdname2id(pvd_attr);
+      var pvdid = this._pvdname2id($loc.attr('provider'));
       var panoid = $loc.attr('panoid');
-    
-    var panopvd = {pano:panoid, pvd:pvdid};
+      var panopvd = {pano:panoid, pvd:pvdid};
+      
       return panopvd;
     },
     

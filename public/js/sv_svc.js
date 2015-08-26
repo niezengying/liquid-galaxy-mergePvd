@@ -71,7 +71,7 @@ define(['googlemaps','mergemaps'], function(GMaps,XMaps) {
         
   // make StreetViewPanoramaData friendlier
    function serializePanoData(panoData) {
-     if(XMaps[provider].Apiprovider == 1){
+     if(provider == 0){
       panoData.location.latLng = XMaps[provider].LatLng({
       lat: panoData.location.latLng.lat(),
       lng: panoData.location.latLng.lng()
@@ -92,10 +92,11 @@ define(['googlemaps','mergemaps'], function(GMaps,XMaps) {
   
   };
   
-  var sv_svcs = new Array(3); 
+  var sv_svcs = new Array(); 
   
   for(i = 0; i<3;i++){
-    sv_svcs[i] = svByPvd(i);
+		var tmpsvc = svByPvd(i);
+    sv_svcs.push(tmpsvc);
   }
   return sv_svcs;
   

@@ -66,6 +66,8 @@ function(
       XMaps[i].visualRefresh = true;
 
       var mapOptions = {
+      //  center: this.default_center,
+      //  zoom: 14,
         backgroundColor: "black",
         disableDefaultUI: true,
         mapTypeControl: config.touchscreen.show_maptypectl,
@@ -73,14 +75,15 @@ function(
           mapTypeIds: [ XMaps[i].MapTypeId.ROADMAP, XMaps[i].MapTypeId.HYBRID ],
           position: XMaps[i].ControlPosition.TOP_LEFT
         },
-        mapTypeId: XMaps[i].MapTypeId[config.touchscreen.default_maptype]
+        mapTypeId: XMaps[i].MapTypeId[config.touchscreen.default_maptype],
       };
-      
+
       // *** init each map object
       this.map = new XMaps[i].Map(this.$canvas,mapOptions);
       this.map.centerAndZoom(this.default_center, 14);
       this.map.setOptions(mapOptions);
       this.map.setOptions({styles: PeruseMapStyles});
+      //this.map.setCustom(mapOptions);
       this.mapArray[i] = this.map;
       
           
@@ -152,9 +155,7 @@ function(
       this.on('_ready', function() {
         time++;
         if(time == 3) this.emit('ready');
-      }); 
-      
-     
+      });     
     },
 
     zoom_in: function() {
@@ -166,7 +167,6 @@ function(
     },
     
      _switch_map: function(pvdid){
-      console.log("_switch_map to", pvdid);
       this.provider = pvdid;
       this.map = this.mapArray[pvdid];
       this.sv_marker = this.mkrArray[pvdid];
@@ -252,7 +252,7 @@ function(
     },
     
     add_location_by_panopvd: function(panopvd) {
-        this.poiArray[panopvd.pvd].add_location_by_id(panovd.pano);
+        this.poiArray[panopvd.pvd].add_location_by_id(panopvd.pano);
     },
     
     add_photosphere_by_id: function(panoid) {
