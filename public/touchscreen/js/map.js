@@ -38,17 +38,23 @@ function(
       this.provider = null;
       this.map = null;
       this.sv_marker = null;
+      
+      this.mkrArray = new Array(3);
+      this.poiArray = new Array(3);
+      this.mapArray = new Array(3);
+      this.clkArray = new Array(3);
+      this.cvgArray = new Array(3);
     },
 
     init: function() {
       console.debug('Map: init');
 
       var self = this;
-      this.mkrArray = new Array(3);
+/*       this.mkrArray = new Array(3);
       this.poiArray = new Array(3);
       this.mapArray = new Array(3);
       this.clkArray = new Array(3);
-      this.cvgArray = new Array(3);
+      this.cvgArray = new Array(3); */
 
       if (typeof XMaps === 'undefined') L.error('Maps API not loaded!');
       
@@ -82,7 +88,8 @@ function(
       this.map = new XMaps[i].Map(this.$canvas,mapOptions);
       this.map.centerAndZoom(this.default_center, 14);
       this.map.setOptions(mapOptions);
-      this.map.setOptions({styles: PeruseMapStyles});
+      if(i == 0)
+        this.map.setOptions({styles: PeruseMapStyles});
       //this.map.setCustom(mapOptions);
       this.mapArray[i] = this.map;
       

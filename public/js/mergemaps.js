@@ -394,10 +394,12 @@ var mapByPvd  = function(provider){
       }
       break;  
     case 3: 
-      marker = new BMaps.Marker(opt.position);
+      marker = new BMaps.Marker(opt.position,{
+				icon: new BMaps.Icon(opt.icon,new BMaps.Size(57.6,57.6))
+			});
       marker.setMap = function(map){
-        marker.setTop(true);
         marker.show();
+				marker.setTop(true);
       };
       marker.removeMap = function(map){
         marker.hide();
@@ -482,14 +484,14 @@ var mapByPvd  = function(provider){
         break;
       case 3:
         streetview = new BMaps.Panorama(div,{ 
-        navigationControl: opt.scrollwheel
+          navigationControl: opt.navigationControl
         }); 
         streetview.getPano = streetview.getId;
         streetview.setPano = function(panoId){
-        streetview.setId(panoId);
-        trigger("position_changed");
-      };
-      break;
+          streetview.setId(panoId);
+          trigger("position_changed");
+        };
+        break;
       }
      return streetview;
    }
