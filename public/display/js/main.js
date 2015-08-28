@@ -62,7 +62,7 @@ function(
 
   // *** initialize the StreetView module
   var sv = new StreetViewModule(
-    document.getElementById('pano'),
+    document.getElementById('Gpano'),
     document.getElementById('Qpano'),
     document.getElementById('Bpano'),
     LOCAL_CONFIG.master

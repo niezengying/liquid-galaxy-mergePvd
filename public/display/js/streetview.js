@@ -129,11 +129,11 @@ function(config, L, validate, Stapes, XMaps) {
             disableMove: true,
             navigationControl: false
         }; 
-				
+        
         // *** only show links on the master display
         if (this.master && config.display.show_links) {
           svOptions.linksControl = true;
-					svOptions.disableMove = false;
+          svOptions.disableMove = false;
         }
              
         // *** init map object
@@ -142,7 +142,7 @@ function(config, L, validate, Stapes, XMaps) {
           mapOptions
         );
         this.map.centerAndZoom(this.default_center,8);
-				
+        
         // *** init streetview object
         this.streetview = new XMaps[i].StreetViewPanorama(
           this.$canvas,
@@ -176,7 +176,7 @@ function(config, L, validate, Stapes, XMaps) {
       this.streetview = this.svArray[this.provider];
       this.map = this.mapArray[this.provider];
       this.sv_svc = this.sv_svcArray[this.provider];
-			this._change_map_shown(this.provider);    
+      this._change_map_shown(this.provider);    
         
              
       // *** events for master only
@@ -291,16 +291,16 @@ function(config, L, validate, Stapes, XMaps) {
       var pvdid = panopvd.pvd;
         
       if (pvdid != this.provider) {
-				this.provider = pvdid;
+        this.provider = pvdid;
         this.pano = panoid;
         this.map = this.mapArray[pvdid];
-				
-				this.sv_svc = this.sv_svcArray[pvdid];
-				this.svArray[pvdid].setPano(panoid);
-				this.streetview = this.svArray[pvdid];
+        
+        this.sv_svc = this.sv_svcArray[pvdid];
+        this.svArray[pvdid].setPano(panoid);
+        this.streetview = this.svArray[pvdid];
 
-				this.resetPov();  
-			  this._change_map_shown(pvdid);
+        this.resetPov();  
+        this._change_map_shown(pvdid);
 
       }
       else{
@@ -455,20 +455,21 @@ function(config, L, validate, Stapes, XMaps) {
       var cvArray = [this.$Gcanvas,this.$Qcanvas,this.$Bcanvas];
       for(i = 0; i<3; i++){
         $curdiv = cvArray[i];
-        if(i == pvdid) $curdiv.style.display = 'block';
-        else $curdiv.style.display = 'none';
+        /*      
+        if(i == pvdid) 
+          $curdiv.style.display = 'block';
+        else $curdiv.style.display = 'none'; 
+        */
+        
+        if(i != pvdid){
+          $curdiv.style.height = 0;
+          $curdiv.style.opacity = 0;          
+        }
+        else {
+          $curdiv.style.height = "100%";
+          $curdiv.style.opacity = 1;
+        };
       }
-    },
-  
-    
-    _change_map_shown2: function(pvdid){
-      var cvArray = [this.$Gcanvas,this.$Qcanvas,this.$Bcanvas];
-      cvArray.forEach(function(canvas,idx){
-        if(idx == pvdid)
-          canvas.style.display = 'block';
-        else
-          canvas.style.display = 'none';
-      });
     },
     
     _change_sv_div: function(pvdid){
