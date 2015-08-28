@@ -104,9 +104,6 @@ function(
       if (LOCAL_CONFIG.pano != null) {
         viewsync.sendPano(LOCAL_CONFIG.pano);
       }
-      /* sv.on('pvd_changed', function(pvdid) {
-        viewsync.sendPvd(pvdid);
-      });*/
       sv.on('pov_changed', function(pov) {
         viewsync.sendPov(pov);
       });
