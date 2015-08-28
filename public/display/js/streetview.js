@@ -241,15 +241,7 @@ function(config, L, validate, Stapes, XMaps) {
       });
             
     },
-    
-    initParams: function(panopvd){
-      this.provider = panopvd.pvd;
-      this.pano = panopvd.pano;
-      this.svArray[this.provider].setPano(panopvd.pano);
-      this.streetview = this.svArray[panopvd.pvd];
-      this.emit('init OK');
-    },
-    
+
     // *** setPvd(pvdid)
     // switch to the provided pvd, immediately
     setPvd: function(pvdid) {
@@ -263,6 +255,12 @@ function(config, L, validate, Stapes, XMaps) {
         this.map = this.mapArray[pvdid];
         this.sv_svc = this.sv_svcArray[pvdid];
         this._change_map_shown(pvdid);
+				XMaps[pvdid].addListener(this.mapArray[pvdid],'idle',function(){
+					console.log("setpvd map idle");
+				});
+				XMaps[pvdid].addListener(this.svArray[pvdid],'idle',function(){
+					console.log("setpvd sv idle");
+				});
       } 
     },
 

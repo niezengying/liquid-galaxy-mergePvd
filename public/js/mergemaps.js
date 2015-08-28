@@ -498,6 +498,7 @@ var mapByPvd  = function(provider){
           navigationControl: opt.navigationControl,
           linksControl: opt.linksControl
         }); 
+        streetview.disableScrollWheelZoom();
         streetview.getPano = streetview.getId;
         streetview.setPano = function(panoId){
           streetview.setId(panoId);
