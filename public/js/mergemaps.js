@@ -91,8 +91,8 @@ var mapByPvd  = function(provider){
     return loc;
    }
    
-   function Point(x,y)
-   {
+  function Point(x,y)
+  {
     var point;
     switch(apiProvider)
     {
@@ -106,11 +106,12 @@ var mapByPvd  = function(provider){
       point = new BMaps.Pixel(x,y);
       break;
     }
-   return point;
-   }
+    return point;
+  }
+
    
-   function Size(width,height)
-   {
+  function Size(width,height)
+  {
     var size;
     switch(apiProvider)
     {
@@ -124,9 +125,9 @@ var mapByPvd  = function(provider){
       size = new BMaps.Size(width,height);
       break;
     }
-   return size;
-   }
-  
+    return size;
+  }
+      
      
   // streetview Service
   var tmpsv = new BMaps.PanoramaService();   
@@ -251,7 +252,9 @@ var mapByPvd  = function(provider){
     {
     case 1:
       map = new GMaps.Map(div,opt);
-      map.addOverlay = function(overlay){};
+      map.addOverlay = function(overlay){
+        overlay.setMap(map);
+      };
       map.centerAndZoom = function(center,zoom){
         map.setCenter(center);
         map.setZoom(zoom);
@@ -262,7 +265,9 @@ var mapByPvd  = function(provider){
       break;
     case 2:
       map = new QMaps.Map(div,opt); 
-      map.addOverlay = function(overlay){};
+      map.addOverlay = function(overlay){
+        overlay.setMap(map);
+      };
       map.setStreetView = function(streetview){};
       map.centerAndZoom = function(center,zoom){
         map.setCenter(center);
@@ -386,34 +391,35 @@ var mapByPvd  = function(provider){
       marker.removeMap = function(map){
         marker.setMap(null);
       };
-			marker.add2map = marker.setMap;
+      marker.setIcons = marker.setIcon;
       break;
     case 2:
       marker = new QMaps.Marker(opt);
       marker.removeMap = function(map){
         marker.setMap(null);
       }
-			marker.add2map = marker.setMap;
+      marker.setIcons = marker.setIcon;
       break;  
     case 3: 
-      marker = new BMaps.Marker(opt.position,{
-        icon: new BMaps.Icon(opt.icon,new BMaps.Size(57.6,57.6))
-      });
-			marker.add2map = function(map){
-				map.addOverlay(marker);
-			}
+      marker = new BMaps.Marker(opt.position);
       marker.setMap = function(map){
-        marker.show();
+       // marker.show();
+        map.addOverlay(marker);
         marker.setTop(true);
       };
       marker.removeMap = function(map){
-        marker.hide();
+        map.removeOverlay(marker);
+       // marker.hide();
+      };
+      marker.setIcons = function(url){
+        icon = new BMap.Icon(url,new BMap.Size(56.5,56.5));
+        marker.setIcon(icon);
       };
       break;
     }
     return marker;
    }  
-   
+
    //InfoWindow Module
    function InfoWindow(opt)
    {
@@ -490,7 +496,7 @@ var mapByPvd  = function(provider){
       case 3:
         streetview = new BMaps.Panorama(div,{ 
           navigationControl: opt.navigationControl,
-					linksControl: opt.linksControl
+          linksControl: opt.linksControl
         }); 
         streetview.getPano = streetview.getId;
         streetview.setPano = function(panoId){
@@ -559,7 +565,7 @@ var mapByPvd  = function(provider){
   }
    
   // get the event position
-	function getEventPos(event){
+  function getEventPos(event){
     switch(apiProvider){
     case 1:
       return event.latLng;
@@ -589,7 +595,6 @@ var mapByPvd  = function(provider){
   Map: Map,
   StreetViewPanorama: StreetViewPanorama,
   StreetViewService: StreetViewService,
-  
   
   Marker: Marker,
   InfoWindow: InfoWindow,

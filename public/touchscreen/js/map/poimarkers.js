@@ -31,14 +31,14 @@ function(config, L, Stapes,  XMaps, sv_svc) {
       var name   = panodata.location.description;
       var panoid = panodata.location.pano;
 
-      var marker = new XMaps[self.provider].Marker({
+      marker = new XMaps[self.provider].Marker({
         position  : latlng,
         title     : name,
         clickable : true,
         map       : this.map
       });
-			
-			marker.add2map(this.map);
+      
+      marker.setMap(this.map);
 
       XMaps[this.provider].addListener(marker, 'click', function(mev) {
         self.emit('marker_selected', panodata);

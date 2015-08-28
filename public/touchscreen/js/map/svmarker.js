@@ -36,14 +36,14 @@ function(config, L, Stapes, XMaps) {
         icon: 'icons/sv_sprite.png',
         clickable: false
       });
-			
-			this.sv_marker.add2map(this.map);
-			
+
+      this.sv_marker.setIcons('icons/sv_sprite.png');
+      
     },
   
     move: function(latlng) {
-      this.sv_marker.setPosition(latlng);
       this.sv_marker.setMap(this.map);
+      this.sv_marker.setPosition(latlng);      
     },
 
     hide: function() {
