@@ -173,7 +173,15 @@ function(
       this.map.setZoom(this.map.getZoom() - 1);
     },
     
-     _switch_map: function(pvdid){
+  
+    // change $canvas as the current canvas
+    _change_sv_div: function(pvdid){
+      if(0==pvdid)   this.$canvas = this.$Gcanvas;
+      else if(1==pvdid) this.$canvas = this.$Qcanvas;
+      else if(2==pvdid) this.$canvas = this.$Bcanvas;      
+    },
+    
+    _switch_map: function(pvdid){
       this.provider = pvdid;
       this.map = this.mapArray[pvdid];
       this.sv_marker = this.mkrArray[pvdid];
@@ -182,6 +190,28 @@ function(
       this.sv_coverage = this.cvgArray[pvdid];
       this._change_map_shown(pvdid);
     }, 
+    
+    
+    // switch the div to be shown
+    _change_map_shown:function(pvdid){
+      var cvArray = [this.$Gcanvas,this.$Qcanvas,this.$Bcanvas];
+      for(i = 0; i<3; i++){
+        $curdiv = cvArray[i];
+        /* if(i == pvdid) 
+          $curdiv.style.display = 'block';
+        else $curdiv.style.display = 'none';
+        */
+                
+        if(i != pvdid){
+          $curdiv.style.height = 0;
+          $curdiv.style.opacity = 0;          
+        }
+        else {
+          $curdiv.style.height = "100%";
+          $curdiv.style.opacity = 1;
+        };
+      }
+    },
 
     _pan_map: function(latlng) {
       this.map.panTo(latlng);
@@ -220,38 +250,8 @@ function(
         }
       );
     },
-    
-    _get_pvd_id: function(pvd){
-      if(pvd == "google") return 0;
-      else if(pvd == "tencent") return 1;
-      else return 2;
-    },
-    
-    _get_pvd_name: function(pvdid){
-      if(pvdid == 0) return "google";
-      else if(pvd == 1) return "tencent";
-      else return "baidu";
-    },
-    
-    _change_map_shown:function(pvdid){
-      var cvArray = [this.$Gcanvas,this.$Qcanvas,this.$Bcanvas];
-      for(i = 0; i<3; i++){
-        $curdiv = cvArray[i];
-/*      if(i == pvdid) 
-          $curdiv.style.display = 'block';
-        else $curdiv.style.display = 'none'; */
-                
-        if(i != pvdid){
-          $curdiv.style.height = 0;
-          $curdiv.style.opacity = 0;          
-        }
-        else {
-          $curdiv.style.height = "100%";
-          $curdiv.style.opacity = 1;
-        };
-      }
-    },
-    
+		
+            
     add_location_by_id: function(panoid) {
         this.poi_markers.add_location_by_id(panoid);
     },
@@ -260,6 +260,7 @@ function(
         this.poiArray[panopvd.pvd].add_location_by_id(panopvd.pano);
     },
     
+		// add photosphere to the Google base map
     add_photosphere_by_id: function(panoid) {
         this.poiArray[0].add_location_by_id(panoid);
     },
@@ -306,10 +307,22 @@ function(
     },
     
     
-    
     // update is called when the map provider is changed poi-items
-    // it should pan the map and move the marker to the new location.
+    // it should not only change the map, but also its marker, coverage et. 
+    update_map_by_pvd: function(pvdid){
+      this.provider = pvdid;
+      this.map = this.mapArray[pvdid];
+      this.sv_marker = this.mkrArray[pvdid];
+      this.poi_markers = this.poiArray[pvdid];
+      this.click_search = this.clkArray[pvdid];
+      this.sv_coverage = this.cvgArray[pvdid];
+      
+      this._change_map_shown(pvdid);
+    },
     
+    
+    // update is called when the map provider is changed
+    // it should pan the map and move the marker to the new location.    
     update_by_panopvd: function(panopvd) {
       self = this;
       var pvdid = panopvd.pvd;
@@ -335,23 +348,6 @@ function(
         }
       );
      this._change_map_shown(pvdid);
-    },
-    
-    update_map_by_pvd: function(pvdid){
-      this.provider = pvdid;
-      this.map = this.mapArray[pvdid];
-      this.sv_marker = this.mkrArray[pvdid];
-      this.poi_markers = this.poiArray[pvdid];
-      this.click_search = this.clkArray[pvdid];
-      this.sv_coverage = this.cvgArray[pvdid];
-      
-      this._change_map_shown(pvdid);
-    },
-    
-    _change_sv_div: function(pvdid){
-      if(0==pvdid)   this.$canvas = this.$Gcanvas;
-      else if(1==pvdid) this.$canvas = this.$Qcanvas;
-      else if(2==pvdid) this.$canvas = this.$Bcanvas;      
     }
   });
 

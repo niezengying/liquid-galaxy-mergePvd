@@ -250,6 +250,8 @@ function(config, L, validate, Stapes, XMaps) {
       this.emit('init OK');
     },
     
+    // *** setPvd(pvdid)
+    // switch to the provided pvd, immediately
     setPvd: function(pvdid) {
       if (!validate.pvd(pvdid)) {
         L.error('StreetView: bad pvd to setPvd!');
@@ -388,11 +390,6 @@ function(config, L, validate, Stapes, XMaps) {
       console.debug('StreetView: resize', this.hfov, this.vfov);
     },
     
-    
-    _initParam: function(){
-      this.emit('sv_init');
-    },
-
     // *** _broadcastPov(XMaps.StreetViewPov)
     // report a pov change to listeners
     _broadcastPov: function(pov) {
@@ -429,6 +426,7 @@ function(config, L, validate, Stapes, XMaps) {
       return diff >= 180 ? diff - (diff - 180) * 2 : diff;
     },
 
+    
     // *** _getForwardLink()
     // return the link nearest the current heading
     _getForwardLink: function() {
@@ -450,6 +448,7 @@ function(config, L, validate, Stapes, XMaps) {
       return nearest;
     },
     
+    // show the div of active map
     _change_map_shown:function(pvdid){
       var cvArray = [this.$Gcanvas,this.$Qcanvas,this.$Bcanvas];
       for(i = 0; i<3; i++){
@@ -471,6 +470,7 @@ function(config, L, validate, Stapes, XMaps) {
       }
     },
     
+    // change $canvas as the current map canvas
     _change_sv_div: function(pvdid){
       if(0==pvdid)   this.$canvas = this.$Gcanvas;
       else if(1==pvdid) this.$canvas = this.$Qcanvas;
