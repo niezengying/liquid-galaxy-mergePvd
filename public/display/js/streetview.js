@@ -128,12 +128,12 @@ function(config, L, validate, Stapes, XMaps) {
             disableCompass: true,
             disableMove: true,
             navigationControl: false
-        };
-        
+        }; 
+				
         // *** only show links on the master display
         if (this.master && config.display.show_links) {
           svOptions.linksControl = true;
-          svOptions.disableMove = false;
+					svOptions.disableMove = false;
         }
              
         // *** init map object
@@ -142,6 +142,7 @@ function(config, L, validate, Stapes, XMaps) {
           mapOptions
         );
         this.map.centerAndZoom(this.default_center,8);
+				
         // *** init streetview object
         this.streetview = new XMaps[i].StreetViewPanorama(
           this.$canvas,
@@ -172,10 +173,10 @@ function(config, L, validate, Stapes, XMaps) {
       }
       
       this.provider = config.provider-1;
-      this._change_map_shown(this.provider);    
       this.streetview = this.svArray[this.provider];
       this.map = this.mapArray[this.provider];
       this.sv_svc = this.sv_svcArray[this.provider];
+			this._change_map_shown(this.provider);    
         
              
       // *** events for master only
@@ -220,28 +221,8 @@ function(config, L, validate, Stapes, XMaps) {
             console.debug('StreetView: ready map');
             self.emit('_ready');
         });    
-       
-
+      
       }
-/*       XMaps[0].addListenerOnce(this.mapArray[0], 'idle', function() {
-          console.debug('StreetView: ready map',0);
-          self.emit('_ready');
-     });
-     
-      XMaps[1].addListenerOnce(this.svArray[1], 'loaded', function() {
-          console.debug('StreetView: ready map',1);
-          self.emit('_ready');
-     });   
-     
-      XMaps[1].addListenerOnce(this.mapArray[1], 'tilesloaded', function() {
-          console.debug('StreetView: ready map',1);
-          self.emit('_ready');
-     });  
-     
-     XMaps[2].addListenerOnce(this.mapArray[2], 'idle', function() {
-          console.debug('StreetView: ready map',2);
-          self.emit('_ready');
-     }); */
 
       var time = 0
       this.on('_ready', function() {
@@ -280,12 +261,6 @@ function(config, L, validate, Stapes, XMaps) {
         this.map = this.mapArray[pvdid];
         this.sv_svc = this.sv_svcArray[pvdid];
         this._change_map_shown(pvdid);
-				
-/* 				XMaps[pvdid].addListenerOnce(this.map, 'idle', function() {
-					self.svArray[pvdid].setPano(panoid);
-					self.streetview = self.svArray[pvdid];
-					self.resetPov();  
-        }); */  
       } 
     },
 
@@ -316,22 +291,22 @@ function(config, L, validate, Stapes, XMaps) {
       var pvdid = panopvd.pvd;
         
       if (pvdid != this.provider) {
+				this.provider = pvdid;
         this.pano = panoid;
-        this.provider = pvdid;
         this.map = this.mapArray[pvdid];
-        this._change_map_shown(pvdid);
-/* 				XMaps[pvdid].addListenerOnce(this.map, 'idle', function() {
-					self.svArray[pvdid].setPano(panoid);
-					self.streetview = self.svArray[pvdid];
-					self.resetPov();  
-        });  */   
+				
+				this.sv_svc = this.sv_svcArray[pvdid];
+				this.svArray[pvdid].setPano(panoid);
+				this.streetview = this.svArray[pvdid];
+
+				this.resetPov();  
+			  this._change_map_shown(pvdid);
+
       }
       else{
         this.pano = panoid;
-        this.streetview.setPano(panoid);   
-        this.svArray[pvdid] = this.streetview;
-    //    this.svArray[pvdid].setPano(panoid);        
-   //     this.streetview = this.svArray[pvdid];
+        this.svArray[pvdid].setPano(panoid);        
+        this.streetview = this.svArray[pvdid];
         this.resetPov();
       }
 
@@ -344,10 +319,8 @@ function(config, L, validate, Stapes, XMaps) {
         L.error('StreetView: bad pov to setPov!');
         return;
       }
- //     this.svArray[this.provider].setPov(pov);
- //     this.streetview = this.svArray[this.provider];
-      this.streetview.setPov(pov);
-      this.svArray[this.provider] = this.streetview;
+      this.svArray[this.provider].setPov(pov);
+      this.streetview = this.svArray[this.provider];
     },
 
     // *** restPov(Xmaps.StreetViewPov)

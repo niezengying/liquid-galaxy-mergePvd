@@ -395,11 +395,11 @@ var mapByPvd  = function(provider){
       break;  
     case 3: 
       marker = new BMaps.Marker(opt.position,{
-				icon: new BMaps.Icon(opt.icon,new BMaps.Size(57.6,57.6))
-			});
+        icon: new BMaps.Icon(opt.icon,new BMaps.Size(57.6,57.6))
+      });
       marker.setMap = function(map){
         marker.show();
-				marker.setTop(true);
+        marker.setTop(true);
       };
       marker.removeMap = function(map){
         marker.hide();
@@ -469,7 +469,7 @@ var mapByPvd  = function(provider){
         break;
       case 2:
         streetview = new QMaps.Panorama(div,opt); 
-         streetview.getLinks = function(){
+        streetview.getLinks = function(){
           var fromloc = streetview.getPosition();
           var distance = config.display.move_Range;
           var pov = streetview.getPov();
