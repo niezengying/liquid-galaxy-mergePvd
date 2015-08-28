@@ -441,7 +441,6 @@ function(config, L, validate, Stapes, XMaps) {
       for(var i=0; i<len; i++) {
         var link = links[i];
         var difference = this._getLinkDifference(pov, link);
-        console.log(difference, link);
         if (difference < nearest_difference) {
           nearest = link;
           nearest_difference = difference;

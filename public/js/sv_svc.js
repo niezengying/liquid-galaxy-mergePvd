@@ -95,7 +95,7 @@ define(['googlemaps','mergemaps'], function(GMaps,XMaps) {
   var sv_svcs = new Array(); 
   
   for(i = 0; i<3;i++){
-		var tmpsvc = svByPvd(i);
+    var tmpsvc = svByPvd(i);
     sv_svcs.push(tmpsvc);
   }
   return sv_svcs;

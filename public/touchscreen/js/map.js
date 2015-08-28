@@ -198,7 +198,6 @@ function(
       sv_svc[this.provider].getPanoramaById(
         panoid,
         function (data, stat) {
-          console.log(data);
           if (stat == XMaps[self.provider].StreetViewStatus.OK) {
             //sv_svc[self.provider].serializePanoData(data);
             self.emit('meta', data);
@@ -238,20 +237,19 @@ function(
       var cvArray = [this.$Gcanvas,this.$Qcanvas,this.$Bcanvas];
       for(i = 0; i<3; i++){
         $curdiv = cvArray[i];
-        if(i == pvdid) $curdiv.style.display = 'block';
-        else $curdiv.style.display = 'none';
+/*      if(i == pvdid) 
+          $curdiv.style.display = 'block';
+        else $curdiv.style.display = 'none'; */
+                
+        if(i != pvdid){
+          $curdiv.style.height = 0;
+          $curdiv.style.opacity = 0;          
+        }
+        else {
+          $curdiv.style.height = "100%";
+          $curdiv.style.opacity = 1;
+        };
       }
-    },
-  
-    
-    _change_map_shown2: function(pvdid){
-      var cvArray = [this.$Gcanvas,this.$Qcanvas,this.$Bcanvas];
-      cvArray.forEach(function(canvas,idx){
-        if(idx == pvdid)
-          canvas.style.display = 'block';
-        else
-          canvas.style.display = 'none';
-      });
     },
     
     add_location_by_id: function(panoid) {

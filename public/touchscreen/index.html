@@ -29,8 +29,8 @@
     </noscript>
 
     <div id="Gmap_canvas"></div>
-		<div id="Qmap_canvas"></div>
-		<div id="Bmap_canvas"></div>
+    <div id="Qmap_canvas"></div>
+    <div id="Bmap_canvas"></div>
     <div id="left-ui"></div>
 
     <script id="poi-template" type="text/template">
@@ -47,7 +47,7 @@
         {{~category.objects :poi}}
           <li class="poi-item"
               panoid="{{=poi.identifier}}"
-							provider="{{=poi.provider}}"
+              provider="{{=poi.provider}}"
               {{? poi.heading != null }}heading="{{=poi.heading}}"{{?}}
           >{{=poi.title}}</li>
         {{~}}
@@ -67,6 +67,6 @@
       </ul>
     </div>
     </script>
-		
+    
   </body>
 </html>

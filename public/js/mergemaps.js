@@ -484,7 +484,8 @@ var mapByPvd  = function(provider){
         break;
       case 3:
         streetview = new BMaps.Panorama(div,{ 
-          navigationControl: opt.navigationControl
+          navigationControl: opt.navigationControl,
+					linksControl: opt.linksControl
         }); 
         streetview.getPano = streetview.getId;
         streetview.setPano = function(panoId){
