@@ -386,17 +386,22 @@ var mapByPvd  = function(provider){
       marker.removeMap = function(map){
         marker.setMap(null);
       };
+			marker.add2map = marker.setMap;
       break;
     case 2:
       marker = new QMaps.Marker(opt);
       marker.removeMap = function(map){
         marker.setMap(null);
       }
+			marker.add2map = marker.setMap;
       break;  
     case 3: 
       marker = new BMaps.Marker(opt.position,{
         icon: new BMaps.Icon(opt.icon,new BMaps.Size(57.6,57.6))
       });
+			marker.add2map = function(map){
+				map.addOverlay(marker);
+			}
       marker.setMap = function(map){
         marker.show();
         marker.setTop(true);
@@ -553,7 +558,8 @@ var mapByPvd  = function(provider){
     return evtname;
   }
    
-   function getEventPos(event){
+  // get the event position
+	function getEventPos(event){
     switch(apiProvider){
     case 1:
       return event.latLng;

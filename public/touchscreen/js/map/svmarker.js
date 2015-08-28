@@ -36,6 +36,9 @@ function(config, L, Stapes, XMaps) {
         icon: 'icons/sv_sprite.png',
         clickable: false
       });
+			
+			this.sv_marker.add2map(this.map);
+			
     },
   
     move: function(latlng) {

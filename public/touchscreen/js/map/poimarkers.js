@@ -37,6 +37,8 @@ function(config, L, Stapes,  XMaps, sv_svc) {
         clickable : true,
         map       : this.map
       });
+			
+			marker.add2map(this.map);
 
       XMaps[this.provider].addListener(marker, 'click', function(mev) {
         self.emit('marker_selected', panodata);
