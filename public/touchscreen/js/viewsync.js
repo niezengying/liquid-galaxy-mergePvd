@@ -61,12 +61,10 @@ function(config, L, Stapes, io) {
 
     sendPano: function(panoid) {
       this.socket.emit('pano', panoid);
-      L.info('ViewSync: sendPano', panoid);
     },
     
     sendPvd: function(pvdid) {
       this.socket.emit('pvd', pvdid);
-      L.info('ViewSync: sendPvd', pvdid);
     },
 
      sendPanopvd: function(panopvd){
