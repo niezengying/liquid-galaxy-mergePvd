@@ -95,9 +95,9 @@ function(
       
           
       this.cvgArray[i] = new SVCoverageModule(this.mapArray[i],i);
-      this.mkrArray[i]= new SVMarkerModule(this.mapArray[i],i);
       this.poiArray[i] = new POIMarkerModule(this.mapArray[i],i);
-      this.clkArray[i] = new ClickSearchModule(this.mapArray[i],i);      
+      this.clkArray[i] = new ClickSearchModule(this.mapArray[i],i);  
+      this.mkrArray[i]= new SVMarkerModule(this.mapArray[i],i);      
       
       this.poiArray[i].on('marker_selected', function(panodata) {
         var latlng = panodata.location.latLng;
@@ -250,7 +250,7 @@ function(
         }
       );
     },
-		
+    
             
     add_location_by_id: function(panoid) {
         this.poi_markers.add_location_by_id(panoid);
@@ -260,7 +260,7 @@ function(
         this.poiArray[panopvd.pvd].add_location_by_id(panopvd.pano);
     },
     
-		// add photosphere to the Google base map
+    // add photosphere to the Google base map
     add_photosphere_by_id: function(panoid) {
         this.poiArray[0].add_location_by_id(panoid);
     },
