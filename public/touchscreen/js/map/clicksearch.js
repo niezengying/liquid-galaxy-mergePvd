@@ -58,7 +58,7 @@ function(config, L, Stapes, XMaps, sv_svc) {
         }
 
         console.debug('min', min_search_radius, 'max', max_search_radius);
-
+				console.log(this.getPosition());
         var pos = XMaps[provider].getEventPos(event); // event.latLng
         sv_svc[provider].getPanoramaByLocation(
           pos,

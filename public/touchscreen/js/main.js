@@ -53,15 +53,14 @@ requirejs.config({
 });
 
 require(
-['map', 'poi', 'photospheres', 'viewsync', 'zoom', 'activities','providers'],
+['map', 'poi', 'photospheres', 'viewsync', 'zoom', 'activities'],
 function(
   MapModule,
   POIModule,
   PhotoSpheresModule,
   ViewSyncModule,
   ZoomModule,
-  ActivitiesModule,
-  ProvidersModule
+  ActivitiesModule
 ) {
 
   document.body.style['font-size'] = config.touchscreen.font_scale + 'em';
@@ -83,11 +82,7 @@ function(
   var activities = new ActivitiesModule(
     document.getElementById('activities-template')
   );
-  
-//  var providers = new ProvidersModule(
- //   document.getElementById('providers-template')
- // );
-  
+
   if (config.touchscreen.show_zoomctl) {
     var zoom_ctl = new ZoomModule();
 
@@ -169,7 +164,5 @@ function(
   poi.init();
  
   activities.init();
-  
-  //providers.init();
 
 });
