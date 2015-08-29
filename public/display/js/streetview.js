@@ -156,7 +156,7 @@ function(config, L, validate, Stapes, XMaps) {
         });
         
         this.streetview.setZoom(this.zoom);
-        this.streetview.setPano(config.display.default_pano[i]);
+     //   this.streetview.setPano(config.display.default_pano[i]);
     
         // *** set the display mode as specified in global configuration
         this.streetview.setOptions({ mode: this.mode });
