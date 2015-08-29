@@ -26,7 +26,7 @@ function(config, L, Stapes,  XMaps, sv_svc) {
 
     _add_location_marker: function(panodata) {
       var self = this;
-
+			if(panodata == null) return;
       var latlng = panodata.location.latLng;
       var name   = panodata.location.description;
       var panoid = panodata.location.pano;
